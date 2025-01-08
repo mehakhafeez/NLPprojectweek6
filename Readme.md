@@ -58,6 +58,7 @@ This project analyzes Amazon product reviews using machine learning and deep lea
 
 ### 7. Huggingface deployment
 https://huggingface.co/spaces/mehakovais/NLPprojectfinal
+https://colab.research.google.com/drive/1mnVNfBr1Hj7Z7bK0HGmKaJjlRiFVwOkb#scrollTo=6wWZHqGNZlOC
 
 ## Installation
 
