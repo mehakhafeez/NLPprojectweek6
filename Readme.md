@@ -16,7 +16,7 @@ This project applies machine learning and deep learning techniques for sentiment
    - [DistilBERT Fine-Tuning](#distilbert-fine-tuning)
 5. [Results](#results)
 6. [Visualization](#visualization)
-
+7. [Huggingfacedeployment]
 ---
 
 ## Overview
@@ -55,6 +55,9 @@ This project analyzes Amazon product reviews using machine learning and deep lea
 ### 6. Visualization
 - Visualize results of KMeans clustering using a scatter plot of PCA components.
 - Optionally, create confusion matrices for sentiment classification models.
+
+### 7. Huggingface deployment
+https://huggingface.co/spaces/mehakovais/NLPprojectfinal
 
 ## Installation
 
