@@ -545,5 +545,3 @@ def predict(input_text):
 
 demo = gr.Interface(fn=predict, inputs="text", outputs="text", title="Text Summarizer", description="Enter text to get a summary.")
 demo.launch()
-
-
