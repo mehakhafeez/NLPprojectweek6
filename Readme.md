@@ -56,9 +56,9 @@ This project analyzes Amazon product reviews using machine learning and deep lea
 - Visualize results of KMeans clustering using a scatter plot of PCA components.
 - Optionally, create confusion matrices for sentiment classification models.
 
-### 7. Huggingface deployment
-https://huggingface.co/spaces/mehakovais/NLPprojectfinal
-https://colab.research.google.com/drive/1mnVNfBr1Hj7Z7bK0HGmKaJjlRiFVwOkb#scrollTo=6wWZHqGNZlOC
+### 7.Deployment
+- https://914c8248a557cc0f79.gradio.live/(if an interface will run)
+
 
 ## Installation
 

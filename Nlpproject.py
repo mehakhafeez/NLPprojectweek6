@@ -1,24 +1,3 @@
-# %%
-pip install textblob nltk rouge-score
-
-
-# %%
-pip install rouge-score
-
-# %%
-pip install transformers==4.23.0
-
-# %%
-pip install sentencepiece==0.1.96
-
-# %%
-!pip install datasets
-
-# %%
-!pip install datasets --upgrade
-!pip install evaluate
-
-# %%
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -539,5 +518,32 @@ for diff in differences:
 # Worst Product
 print(f"Worst Product: {worst_product}")
 print(f"Summary of Worst Product: {worst_product_summary}")
+
+# %%
+!pip install gradio streamlit flask fastapi uvicorn transformers
+
+# %%
+import gradio as gr
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+
+# Load T5 model and tokenizer
+model_name = "t5-small"
+tokenizer = T5Tokenizer.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained(model_name)
+
+# Define the summarization function
+def summarize_text(input_text):
+    if not input_text.strip():
+        return "Please provide valid input text."
+    inputs = tokenizer.encode("summarize: " + input_text, return_tensors="pt", max_length=512, truncation=True)
+    outputs = model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+# Gradio app
+def predict(input_text):
+    return summarize_text(input_text)
+
+demo = gr.Interface(fn=predict, inputs="text", outputs="text", title="Text Summarizer", description="Enter text to get a summary.")
+demo.launch()
 
 
