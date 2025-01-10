@@ -358,7 +358,6 @@ trainer.train()
 
 # %%
 from transformers import Trainer, TrainingArguments, T5Tokenizer, T5ForConditionalGeneration
-!pip install datasets
 from datasets import Dataset
 
 # Fine-tuning T5 on your dataset
