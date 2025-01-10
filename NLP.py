@@ -1,5 +1,3 @@
-
-# %%
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -32,23 +30,23 @@ from nltk.translate.bleu_score import sentence_bleu
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
-# %%
-# Download NLTK resources
+# Suppress warnings
+warnings.filterwarnings('ignore')
+
+#cleaning
 nltk.download('stopwords')
 nltk.download('punkt')
 
-# %%
+# File paths and load data
 df1 = pd.read_csv('/content/1429_1.csv', quoting=3, on_bad_lines='skip')
 # quoting=3 tells pandas to use the QUOTE_NONE strategy. This means that pandas will not treat any character as a quote character. This way if there are unclosed quotes, it ignores them.
 # on_bad_lines='skip' replaces the deprecated 'error_bad_lines=False' to skip bad lines.
 df2 = pd.read_csv('/content/Datafiniti_Amazon_Consumer_Reviews_of_Amazon_Products.csv', quoting=3, on_bad_lines='skip')
 df3 = pd.read_csv('/content/Datafiniti_Amazon_Consumer_Reviews_of_Amazon_Products_May19.csv', quoting=3, on_bad_lines='skip')
 
-# %%
 # Combine datasets into one
 df = pd.concat([df1, df2, df3], ignore_index=True)
 
-# %%
 # Preprocess the text (remove stopwords, special characters, etc.)
 
 def preprocess_text(text):
@@ -78,10 +76,8 @@ def clean_text(text):
     else:
         return ''  # or return str(text) or handle NaN values appropriately
 
-# %%
 print(df.columns)
 
-# %%
 reviews_column = 'review'  # Default column name
 
 # Dynamically check for the correct review column name
@@ -97,14 +93,12 @@ elif 'reviews.text' in df.columns:  # Check if 'reviews.text' is present
 # Now you can use reviews_column to access the correct column:
 df['cleaned_reviews'] = df[reviews_column].apply(clean_text)
 
-# %%
 # Data Cleaning
 df = df.drop_duplicates() # Changed 'data' to 'df'
 df = df.dropna(subset=['reviews.text']) # Changed 'data' to 'df'
 df['reviews.text'] = df['reviews.text'].str.strip() # Changed 'data' to 'df'
 df['reviews.text'] = df['reviews.text'].str.replace(r'[^a-zA-Z\s]', '', regex=True) # Changed 'data' to 'df'
 
-# %%
 # --------------------------- Step 3: Sentiment Classification with Logistic Regression and Naive Bayes ---------------------------
 def calculate_sentiment(text):
     """Calculate sentiment polarity using TextBlob."""
@@ -124,30 +118,24 @@ def classify_sentiment(score):
 
 df['sentiment'] = df['avg_sentiment'].apply(classify_sentiment)
 
-
-# %%
 # Display the first few rows of the dataset with the new 'sentiment' column
 print(df[[reviews_column, 'sentiment']].head(10))
 
-# %%
 # --------------------------- Model Training and Evaluation ---------------------------
 X_train, X_test, y_train, y_test = train_test_split(df['cleaned_reviews'], df['sentiment'], test_size=0.2, random_state=42)
 vectorizer = TfidfVectorizer(max_features=1000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# %%
 # Logistic Regression Model
 log_reg_model = LogisticRegression(max_iter=1000)
 log_reg_model.fit(X_train_vec, y_train)
 y_pred_log_reg = log_reg_model.predict(X_test_vec)
 
-# %%
 # Classification Evaluation
 print("Logistic Regression Classification Report")
 print(classification_report(y_test, y_pred_log_reg))
 
-# %%
 # Confusion Matrix for Logistic Regression
 conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
 
@@ -168,17 +156,14 @@ plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.show()
 
-# %%
 # Naive Bayes Model
 nb_model = MultinomialNB()
 nb_model.fit(X_train_vec, y_train)
 y_pred_nb = nb_model.predict(X_test_vec)
 
-# %%
 print("Naive Bayes Classification Report")
 print(classification_report(y_test, y_pred_nb))
 
-# %%
 # Confusion Matrix
 conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
 conf_matrix_nb = confusion_matrix(y_test, y_pred_nb)
@@ -190,8 +175,6 @@ plt.title("Confusion Matrix:Naive Bayes")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.show()
-
-# %%
 # --------------------------- Step 4: Clustering with KMeans ---------------------------
 vectorizer = TfidfVectorizer(max_features=1000)
 X = vectorizer.fit_transform(df['cleaned_reviews'])
@@ -199,7 +182,6 @@ X = vectorizer.fit_transform(df['cleaned_reviews'])
 kmeans = KMeans(n_clusters=5, random_state=42)
 df['cluster'] = kmeans.fit_predict(X)
 
-# %%
 # --------------------------- Step 5: Visualizing Clusters ---------------------------
 # Visualizing the clusters using a scatter plot (2D for simplicity)
 plt.figure(figsize=(8, 6))
@@ -209,7 +191,6 @@ plt.xlabel("Sentiment Score")
 plt.ylabel("Sentiment Score")
 plt.show()
 
-# %%
 from sklearn.metrics import silhouette_score
 
 X_cluster = vectorizer.fit_transform(df['cleaned_reviews'])
@@ -222,22 +203,18 @@ inertia = kmeans.inertia_
 print(f"Clustering Silhouette Score: {silhouette}")
 print(f"Clustering Inertia: {inertia}")
 
-# %%
 # Visualize clusters
 plt.figure(figsize=(10, 6))
 sns.countplot(x='cluster', data=df)
 plt.title('Cluster Distribution')
 plt.show()
 
-# %%
 # Check the column names in the dataframe
 print(df.columns)
 
-# %%
 # Check the first few rows of the dataset
 print(df.head())
 
-# %%
 # Filter for tablets, ebooks, and other product types (replace these keywords as needed)
 products_of_interest = ['tablet', 'E-Book Readers', 'Smart Speakers']  # Example product types
 
@@ -251,7 +228,6 @@ aggregated_reviews = filtered_df.groupby(['cluster', 'name'])['cleaned_reviews']
 # Show aggregated reviews for these products
 print(aggregated_reviews.head())
 
-# %%
 # --------------------------- Step 6: Aggregating Reviews by Product and Cluster ---------------------------
 # Aggregating reviews by product and cluster using the correct column 'name' for the product identifier
 aggregated_reviews = df.groupby(['cluster', 'name'])['cleaned_reviews'].apply(lambda x: ' '.join(x)).reset_index()
@@ -259,14 +235,10 @@ aggregated_reviews = df.groupby(['cluster', 'name'])['cleaned_reviews'].apply(la
 # Show the first few aggregated reviews to verify
 print(aggregated_reviews.head())
 
-
-# %%
 # --------------------------- Step 7: Ranking Products by Sentiment and Review Frequency ---------------------------
 aggregated_reviews['avg_sentiment'] = aggregated_reviews['cleaned_reviews'].apply(calculate_sentiment)
 aggregated_reviews['cluster_label'] = aggregated_reviews['cluster']
 
-
-# %%
 # Calculate average sentiment and review frequency per product
 ranked_products = aggregated_reviews.groupby(['cluster', 'cluster_label']).agg(
     avg_sentiment=('cleaned_reviews', lambda x: aggregated_reviews[aggregated_reviews['cluster_label'] == x.name]['avg_sentiment'].mean()), # Changed df to aggregated_reviews and x.cluster_label to x.name
@@ -274,7 +246,6 @@ ranked_products = aggregated_reviews.groupby(['cluster', 'cluster_label']).agg(
     cleaned_reviews=('cleaned_reviews', 'first') # Include 'cleaned_reviews' in agg
 ).reset_index()
 
-# %%
 # Rank by average sentime# Rank by average sentiment and review count
 ranked_products = ranked_products.sort_values(by=['cluster', 'avg_sentiment', 'review_count'], ascending=[True, False, False])
 
@@ -285,7 +256,6 @@ print(ranked_products.head())
 # Include 'cleaned_reviews' column in the selection
 top_products = ranked_products[['cluster', 'cluster_label', 'cleaned_reviews', 'avg_sentiment', 'review_count']].head() # Assuming you want the top 5 products
 
-# %%
 # Load the pre-trained T5 model and tokenizer
 tokenizer = T5Tokenizer.from_pretrained("t5-small")
 model = T5ForConditionalGeneration.from_pretrained("t5-small")
@@ -301,7 +271,6 @@ def summarize_reviews(reviews):
 # Summarize the reviews for top products
 top_products['summary'] = top_products['cleaned_reviews'].apply(lambda x: summarize_reviews(x))
 
-# %%
 # Convert the 'name' column to string type before creating the Dataset
 top_products['cluster_label'] = top_products['cluster_label'].astype(str)
 
@@ -311,7 +280,6 @@ from datasets import Dataset
 # Now create the Hugging Face Dataset
 train_dataset = Dataset.from_pandas(top_products)
 
-# %%
 # Convert to Hugging Face dataset format
 from datasets import Dataset # Import the Dataset class
 
@@ -358,9 +326,7 @@ trainer = Trainer(
 # Fine-tune the model
 trainer.train()
 
-# %%
 from transformers import Trainer, TrainingArguments, T5Tokenizer, T5ForConditionalGeneration
-!pip install datasets
 from datasets import Dataset
 
 # Fine-tuning T5 on your dataset
@@ -397,14 +363,12 @@ trainer = Trainer(
 
 trainer.train()
 
-# %%
 # --------------------------- Step 10: Model Training and Evaluation ---------------------------
 X_train, X_test, y_train, y_test = train_test_split(df['cleaned_reviews'], df['sentiment'], test_size=0.2, random_state=42)
 vectorizer = TfidfVectorizer(max_features=1000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# %%
 # --------------------------- Step 11: Clustering Evaluation ---------------------------
 sil_score = silhouette_score(X, kmeans.labels_)
 inertia = kmeans.inertia_
@@ -412,7 +376,6 @@ inertia = kmeans.inertia_
 print(f"Silhouette Score: {sil_score:.2f}")
 print(f"Inertia: {inertia:.2f}")
 
-# %%
 # --------------------------- Step 11: Evaluation of Summarization ---------------------------
 # Load evaluation metrics
 import evaluate # Import the evaluate module
@@ -432,12 +395,10 @@ for idx, row in top_products.iterrows():
     # Print results in percentage (indented to be part of the loop)
     print(f"Product: {row['cluster_label']}, ROUGE: {rouge_score['rouge1']*100:.2f}%, BLEU: {bleu_score['bleu']*100:.2f}%")
 
-# %%
 # Print ROUGE and BLEU scores
 for idx, (rouge_score, bleu_score) in enumerate(zip(rouge_scores, bleu_scores)):
     print(f"Product {top_products.iloc[idx]['product_name']}: ROUGE: {rouge_score}, BLEU: {bleu_score}")
 
-# %%
 # --------------------------- Step 12: Show the Results ---------------------------
 # Print summarized top products with recommendations
 # Changed 'product_name' to 'name'
@@ -451,7 +412,6 @@ accuracy_nb = accuracy_score(y_test, y_pred_nb)
 print(f"Logistic Regression Accuracy: {accuracy_log_reg * 100:.2f}%")
 print(f"Naive Bayes Accuracy: {accuracy_nb * 100:.2f}%")
 
-# %%
 # --------------------------- Step 1: Extract and Summarize Top 5 Products ---------------------------
 top_5_products = top_products.head(5)
 
@@ -528,10 +488,6 @@ for diff in differences:
 print(f"Worst Product: {worst_product}")
 print(f"Summary of Worst Product: {worst_product_summary}")
 
-# %%
-!pip install gradio streamlit flask fastapi uvicorn transformers
-
-# %%
 import gradio as gr
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
@@ -554,5 +510,3 @@ def predict(input_text):
 
 demo = gr.Interface(fn=predict, inputs="text", outputs="text", title="Text Summarizer", description="Enter text to get a summary.")
 demo.launch()
-
-
