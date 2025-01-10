@@ -26,7 +26,6 @@ from textblob import TextBlob
 from rouge_score import rouge_scorer
 import re
 from nltk.translate.bleu_score import sentence_bleu
-# Preprocess the text (remove stopwords, special characters, etc.)
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
