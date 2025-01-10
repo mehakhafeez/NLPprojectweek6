@@ -30,9 +30,6 @@ from nltk.translate.bleu_score import sentence_bleu
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
-# Suppress warnings
-warnings.filterwarnings('ignore')
-
 #cleaning
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -392,6 +389,7 @@ for idx, row in top_products.iterrows():
     rouge_score = rouge.compute(predictions=[predictions], references=[references])
     bleu_score = bleu.compute(predictions=[predictions], references=[references])
     rouge_scores.append(rouge_score)
+    
     # Print results in percentage (indented to be part of the loop)
     print(f"Product: {row['cluster_label']}, ROUGE: {rouge_score['rouge1']*100:.2f}%, BLEU: {bleu_score['bleu']*100:.2f}%")
 
@@ -476,6 +474,7 @@ for idx, row in top_5_products.iterrows():
     print(f"Summary: {row['summary']}")
     print(f"Complaints: {row['complaints']}")
     print()
+
 # Key Differences Between Top 5 Products
 print("Key Differences Between Top 5 Products:")
 for diff in differences:
