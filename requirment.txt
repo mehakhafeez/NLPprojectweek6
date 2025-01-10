@@ -12,3 +12,4 @@ transformers==4.23.0
 sentencepiece==0.1.96
 datasets
 evaluate
+Gardio

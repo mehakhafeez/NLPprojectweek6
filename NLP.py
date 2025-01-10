@@ -128,6 +128,68 @@ df['sentiment'] = df['avg_sentiment'].apply(classify_sentiment)
 print(df[[reviews_column, 'sentiment']].head(10))
 
 # %%
+# --------------------------- Model Training and Evaluation ---------------------------
+X_train, X_test, y_train, y_test = train_test_split(df['cleaned_reviews'], df['sentiment'], test_size=0.2, random_state=42)
+vectorizer = TfidfVectorizer(max_features=1000)
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
+
+# %%
+# Logistic Regression Model
+log_reg_model = LogisticRegression(max_iter=1000)
+log_reg_model.fit(X_train_vec, y_train)
+y_pred_log_reg = log_reg_model.predict(X_test_vec)
+
+# %%
+# Classification Evaluation
+print("Logistic Regression Classification Report")
+print(classification_report(y_test, y_pred_log_reg))
+
+# %%
+# Confusion Matrix for Logistic Regression
+conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
+
+# Calculate y_pred_nb before using it in the confusion matrix calculation
+# Naive Bayes Model
+nb_model = MultinomialNB()
+nb_model.fit(X_train_vec, y_train)
+y_pred_nb = nb_model.predict(X_test_vec)
+
+# Now calculate the confusion matrix for Naive Bayes
+conf_matrix_nb = confusion_matrix(y_test, y_pred_nb)
+
+# Plot Confusion Matrix
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix_log_reg, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Neutral', 'Positive'], yticklabels=['Negative', 'Neutral', 'Positive'])
+plt.title("Confusion Matrix: Logistic Regression")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+# %%
+# Naive Bayes Model
+nb_model = MultinomialNB()
+nb_model.fit(X_train_vec, y_train)
+y_pred_nb = nb_model.predict(X_test_vec)
+
+# %%
+print("Naive Bayes Classification Report")
+print(classification_report(y_test, y_pred_nb))
+
+# %%
+# Confusion Matrix
+conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
+conf_matrix_nb = confusion_matrix(y_test, y_pred_nb)
+
+# Plot Confusion Matrix
+plt.figure(figsize=(6, 4))
+sns.heatmap(conf_matrix_log_reg, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Neutral', 'Positive'], yticklabels=['Negative', 'Neutral', 'Positive'])
+plt.title("Confusion Matrix:Naive Bayes")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+# %%
 # --------------------------- Step 4: Clustering with KMeans ---------------------------
 vectorizer = TfidfVectorizer(max_features=1000)
 X = vectorizer.fit_transform(df['cleaned_reviews'])
@@ -341,61 +403,6 @@ X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
 # %%
-# Logistic Regression Model
-log_reg_model = LogisticRegression(max_iter=1000)
-log_reg_model.fit(X_train_vec, y_train)
-y_pred_log_reg = log_reg_model.predict(X_test_vec)
-
-# %%
-# Classification Evaluation
-print("Logistic Regression Classification Report")
-print(classification_report(y_test, y_pred_log_reg))
-
-# %%
-# Confusion Matrix for Logistic Regression
-conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
-
-# Calculate y_pred_nb before using it in the confusion matrix calculation
-# Naive Bayes Model
-nb_model = MultinomialNB()
-nb_model.fit(X_train_vec, y_train)
-y_pred_nb = nb_model.predict(X_test_vec)
-
-# Now calculate the confusion matrix for Naive Bayes
-conf_matrix_nb = confusion_matrix(y_test, y_pred_nb)
-
-# Plot Confusion Matrix
-plt.figure(figsize=(6, 4))
-sns.heatmap(conf_matrix_log_reg, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Neutral', 'Positive'], yticklabels=['Negative', 'Neutral', 'Positive'])
-plt.title("Confusion Matrix: Logistic Regression")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.show()
-
-# %%
-# Naive Bayes Model
-nb_model = MultinomialNB()
-nb_model.fit(X_train_vec, y_train)
-y_pred_nb = nb_model.predict(X_test_vec)
-
-# %%
-print("Naive Bayes Classification Report")
-print(classification_report(y_test, y_pred_nb))
-
-# %%
-# Confusion Matrix
-conf_matrix_log_reg = confusion_matrix(y_test, y_pred_log_reg)
-conf_matrix_nb = confusion_matrix(y_test, y_pred_nb)
-
-# Plot Confusion Matrix
-plt.figure(figsize=(6, 4))
-sns.heatmap(conf_matrix_log_reg, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Neutral', 'Positive'], yticklabels=['Negative', 'Neutral', 'Positive'])
-plt.title("Confusion Matrix:Naive Bayes")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.show()
-
-# %%
 # --------------------------- Step 11: Clustering Evaluation ---------------------------
 sil_score = silhouette_score(X, kmeans.labels_)
 inertia = kmeans.inertia_
@@ -519,10 +526,6 @@ for diff in differences:
 print(f"Worst Product: {worst_product}")
 print(f"Summary of Worst Product: {worst_product_summary}")
 
-# %%
-!pip install gradio streamlit flask fastapi uvicorn transformers
-
-# %%
 import gradio as gr
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
@@ -545,3 +548,4 @@ def predict(input_text):
 
 demo = gr.Interface(fn=predict, inputs="text", outputs="text", title="Text Summarizer", description="Enter text to get a summary.")
 demo.launch()
+
